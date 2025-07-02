@@ -9,4 +9,6 @@ add_executable(notionSecondEdition main.c
         caesar/CaesarCipher.cpp
         caesar/CaesarCipher.h
         caesar/TextEditorEncryption.cpp
-        caesar/caesar_dll.c)
+        caesar/caesar_dll.c
+        caesar/DataTypeHandler.h
+        caesar/DataTypeHandler.cpp)

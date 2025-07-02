@@ -21,29 +21,22 @@ CaesarCipher::~CaesarCipher() {
 }
 
 bool CaesarCipher::loadLibrary() {
-#ifdef _WIN32
-    libraryHandle = LoadLibrary(L"caesar.dll");
+    // Try to load from current directory first
+    libraryHandle = dlopen("./libcaesar.dylib", RTLD_LAZY);
     if (!libraryHandle) {
-        std::cerr << "Failed to load caesar.dll. Error: " << GetLastError() << std::endl;
-        return false;
+        // Try system library path
+        libraryHandle = dlopen("libcaesar.dylib", RTLD_LAZY);
+        if (!libraryHandle) {
+            std::cerr << "Failed to load libcaesar.dylib: " << dlerror() << std::endl;
+            return false;
+        }
     }
-#else
-    libraryHandle = dlopen("./libcaesar.so", RTLD_LAZY);
-    if (!libraryHandle) {
-        std::cerr << "Failed to load libcaesar.so: " << dlerror() << std::endl;
-        return false;
-    }
-#endif
     return true;
 }
 
 void CaesarCipher::unloadLibrary() {
     if (libraryHandle) {
-#ifdef _WIN32
-        FreeLibrary(libraryHandle);
-#else
         dlclose(libraryHandle);
-#endif
         libraryHandle = nullptr;
         encryptFunc = nullptr;
         decryptFunc = nullptr;
@@ -53,13 +46,8 @@ void CaesarCipher::unloadLibrary() {
 bool CaesarCipher::loadFunctions() {
     if (!libraryHandle) return false;
 
-#ifdef _WIN32
-    encryptFunc = (EncryptFunction)GetProcAddress(libraryHandle, "caesar_encrypt");
-    decryptFunc = (DecryptFunction)GetProcAddress(libraryHandle, "caesar_decrypt");
-#else
     encryptFunc = (EncryptFunction)dlsym(libraryHandle, "caesar_encrypt");
     decryptFunc = (DecryptFunction)dlsym(libraryHandle, "caesar_decrypt");
-#endif
 
     if (!encryptFunc || !decryptFunc) {
         std::cerr << "Failed to load Caesar cipher functions from library" << std::endl;

@@ -4,25 +4,22 @@
 #include <vector>
 #include <string>
 
-#ifdef _WIN32
-#include <windows.h>
-    typedef HMODULE LibraryHandle;
-#else
+// For Mac OS dynamic library loading
 #include <dlfcn.h>
 typedef void* LibraryHandle;
-#endif
 
 class CaesarCipher {
 private:
     LibraryHandle libraryHandle;
 
-    // Function pointers for DLL functions
+    // Function pointers for library functions
     typedef void (*EncryptFunction)(const char* input, char* output, int key, int length);
     typedef void (*DecryptFunction)(const char* input, char* output, int key, int length);
 
     EncryptFunction encryptFunc;
     DecryptFunction decryptFunc;
 
+    // Helper methods
     bool loadLibrary();
     void unloadLibrary();
     bool loadFunctions();
@@ -35,15 +32,15 @@ public:
     std::vector<char> encrypt(const std::vector<char>& data, int key);
     std::vector<char> decrypt(const std::vector<char>& data, int key);
 
-    // Convenience methods for strings
+    // String convenience methods
     std::string encrypt(const std::string& text, int key);
     std::string decrypt(const std::string& text, int key);
 
-    // File encryption/decryption
+    // File operations
     bool encryptFile(const std::string& inputPath, const std::string& outputPath, int key);
     bool decryptFile(const std::string& inputPath, const std::string& outputPath, int key);
 
-    // Check if cipher is ready to use
+    // Status check
     bool isReady() const;
 };
 

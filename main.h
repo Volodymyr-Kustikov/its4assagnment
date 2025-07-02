@@ -7,62 +7,82 @@
 extern "C" {
 #endif
 
+// Basic text buffer structure
 typedef struct {
     char* content;
     size_t size;
     size_t used;
 } TextBuffer;
 
-typedef struct {
-    char* states[10];
-    size_t stateSizes[10];
-    int currentIndex;
-    int totalStates;
-} UndoRedoHistory;
+// Data types for lines
+typedef enum {
+    DATA_TYPE_TEXT = 0,
+    DATA_TYPE_CONTACT = 1,
+    DATA_TYPE_CHECKLIST = 2
+} DataType;
 
-extern UndoRedoHistory history;
+// Contact information structure
+typedef struct {
+    char name[100];
+    char surname[100];
+    char email[150];
+} ContactInfo;
+
+// Checklist item structure
+typedef struct {
+    char info[200];
+    int checked; // 0 = unchecked, 1 = checked
+} ChecklistItem;
+
+// Line data structure
+typedef struct {
+    DataType type;
+    union {
+        char* text;
+        ContactInfo contact;
+        ChecklistItem checklist;
+    } data;
+} LineData;
+
+// Document structure
+typedef struct {
+    LineData* lines;
+    size_t lineCount;
+    size_t capacity;
+} Document;
 
 // C function declarations
 void displayMenu(void);
-void processuserOption(int userOption, TextBuffer* buffer);
-void initializeBuffer(TextBuffer* buffer);
-void resizeBufferIfNeeded(TextBuffer* buffer, size_t additionalSpace);
-void freeBuffer(TextBuffer* buffer);
+void processUserOption(int userOption);
+void initializeDocument(void);
+void freeDocument(void);
 
-void appendText(TextBuffer* buffer);
-void addNewLine(TextBuffer* buffer);
-void saveToFile(TextBuffer* buffer);
-void loadFromFile(TextBuffer* buffer);
-void printCurrentText(TextBuffer* buffer);
-void insertTextAtPosition(TextBuffer* buffer);
-void searchText(TextBuffer* buffer);
-
+// Basic operations
+void appendText(void);
+void addNewLine(void);
+void saveToFile(void);
+void loadFromFile(void);
+void printCurrentText(void);
+void insertTextAtPosition(void);
+void searchText(void);
 void clearConsole(void);
 void clearInputBuffer(void);
 
-// C++ function declarations (implemented in additionalFunctionallity.cpp)
-void deleteText(TextBuffer* buffer);
-void initHistory(void);
-void saveState(TextBuffer* buffer);
-void undoCommand(TextBuffer* buffer);
-void redoCommand(TextBuffer* buffer);
-void freeHistory(void);
+// Data type operations
+void addContactLine(void);
+void addChecklistLine(void);
+void toggleChecklistItem(void);
+void editContactLine(void);
+void editChecklistLine(void);
 
-// New function declarations for cut/copy/paste and insert with replacement
-void copyText(TextBuffer* buffer);
-void cutText(TextBuffer* buffer);
-void pasteText(TextBuffer* buffer);
-void insertWithReplacement(TextBuffer* buffer);
-
-void encryptCurrentText(TextBuffer* buffer);
-void decryptCurrentText(TextBuffer* buffer);
-void encryptTextFile(void);
-void decryptTextFile(void);
-void saveEncryptedText(TextBuffer* buffer);
-void loadEncryptedText(TextBuffer* buffer);
+// Encryption operations
+void encryptDocument(void);
+void decryptDocument(void);
+void saveEncryptedDocument(void);
+void loadEncryptedDocument(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif // MAIN_H
