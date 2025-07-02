@@ -70,6 +70,12 @@ void displayMenu(void) {
     printf("13. Copy text\n");
     printf("14. Insert with replacement\n");
     printf("15. Cut text\n");
+    printf("16. Encrypt current text\n");
+    printf("17. Decrypt current text\n");
+    printf("18. Encrypt text file\n");
+    printf("19. Decrypt text file\n");
+    printf("20. Save encrypted text\n");
+    printf("21. Load encrypted text\n");
     printf("0. Exit\n");
     printf("Enter your choice: ");
 }
@@ -121,6 +127,23 @@ void processuserOption(int userOption, TextBuffer* buffer) {
         case 15:
             cutText(buffer);
             break;
+        case 16:
+            encryptCurrentText(buffer);
+            break;
+        case 17:
+            decryptCurrentText(buffer);
+            break;
+        case 18:
+            encryptTextFile();
+            break;
+        case 19:
+            decryptTextFile();
+            break;
+        case 20:
+            saveEncryptedText(buffer);
+            break;
+        case 21:
+            loadEncryptedText(buffer);
         default:
             printf("Error. U've sent smth strange. Try again\n");
     }

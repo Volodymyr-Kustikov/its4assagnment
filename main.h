@@ -54,6 +54,13 @@ void cutText(TextBuffer* buffer);
 void pasteText(TextBuffer* buffer);
 void insertWithReplacement(TextBuffer* buffer);
 
+void encryptCurrentText(TextBuffer* buffer);
+void decryptCurrentText(TextBuffer* buffer);
+void encryptTextFile(void);
+void decryptTextFile(void);
+void saveEncryptedText(TextBuffer* buffer);
+void loadEncryptedText(TextBuffer* buffer);
+
 #ifdef __cplusplus
 }
 #endif
