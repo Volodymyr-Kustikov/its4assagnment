@@ -1,14 +1,28 @@
-cmake_minimum_required(VERSION 3.31)
-project(notionSecondEdition)
+cmake_minimum_required(VERSION 3.10)
+project(TextEditor)
 
-set(CMAKE_CXX_STANDARD 20)
+# Set C and C++ standards
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 11)
 
-add_executable(notionSecondEdition main.c
-        cpp/additionalFunctionallity.cpp
-        main.h
-        caesar/CaesarCipher.cpp
-        caesar/CaesarCipher.h
-        caesar/TextEditorEncryption.cpp
+# Include subdirectories
+include_directories(${PROJECT_SOURCE_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/caesar)
+include_directories(${PROJECT_SOURCE_DIR}/cpp)
+
+# Caesar dynamic library
+add_library(caesar SHARED
         caesar/caesar_dll.c
-        caesar/DataTypeHandler.h
-        caesar/DataTypeHandler.cpp)
+)
+
+# Main executable
+add_executable(text_editor
+        main.c
+        cpp/additionalFunctionallity.cpp
+        caesar/CaesarCipher.cpp
+        caesar/DataTypeHandler.cpp
+        caesar/TextEditorEncryption.cpp
+)
+
+# Link with the Caesar library
+target_link_libraries(text_editor caesar dl)

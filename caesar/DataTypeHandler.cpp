@@ -297,4 +297,33 @@ std::vector<size_t> DataTypeHandler::searchInDocument(const std::string& searchT
                 break;
             case DATA_TYPE_CONTACT:
                 if (strstr(line.data.contact.name, searchText.c_str()) ||
-                    strstr(line.data.contact.surname, searchText.c_str())
+                    strstr(line.data.contact.surname, searchText.c_str()) ||
+                    strstr(line.data.contact.email, searchText.c_str())) {
+                    found = true;
+                }
+                break;
+            case DATA_TYPE_CHECKLIST:
+                if (strstr(line.data.checklist.info, searchText.c_str())) {
+                    found = true;
+                }
+                break;
+        }
+
+        if (found) {
+            results.push_back(i);
+        }
+    }
+
+    return results;
+}
+
+bool DataTypeHandler::isValidLineIndex(size_t lineIndex) const {
+    return lineIndex < document->lineCount;
+}
+
+DataType DataTypeHandler::getLineType(size_t lineIndex) const {
+    if (!isValidLineIndex(lineIndex)) {
+        return DATA_TYPE_TEXT; // Default fallback
+    }
+    return document->lines[lineIndex].type;
+}

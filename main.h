@@ -51,35 +51,43 @@ typedef struct {
     size_t capacity;
 } Document;
 
-// C function declarations
+// Core operations
 void displayMenu(void);
-void processUserOption(int userOption);
-void initializeDocument(void);
-void freeDocument(void);
-
-// Basic operations
-void appendText(void);
-void addNewLine(void);
-void saveToFile(void);
-void loadFromFile(void);
-void printCurrentText(void);
-void insertTextAtPosition(void);
-void searchText(void);
+void processUserOption(int userOption, TextBuffer* buffer);
+void initializeBuffer(TextBuffer* buffer);
+void resizeBufferIfNeeded(TextBuffer* buffer, size_t additionalSpace);
+void freeBuffer(TextBuffer* buffer);
 void clearConsole(void);
 void clearInputBuffer(void);
 
-// Data type operations
-void addContactLine(void);
-void addChecklistLine(void);
-void toggleChecklistItem(void);
-void editContactLine(void);
-void editChecklistLine(void);
+// Text buffer actions
+void appendText(TextBuffer* buffer);
+void addNewLine(TextBuffer* buffer);
+void saveToFile(TextBuffer* buffer);
+void loadFromFile(TextBuffer* buffer);
+void printCurrentText(TextBuffer* buffer);
+void insertTextAtPosition(TextBuffer* buffer);
+void searchText(TextBuffer* buffer);
+void deleteText(TextBuffer* buffer);
 
-// Encryption operations
-void encryptDocument(void);
-void decryptDocument(void);
-void saveEncryptedDocument(void);
-void loadEncryptedDocument(void);
+// Undo/redo clipboard
+void initHistory(void);
+void saveState(TextBuffer* buffer);
+void undoCommand(TextBuffer* buffer);
+void redoCommand(TextBuffer* buffer);
+void pasteText(TextBuffer* buffer);
+void copyText(TextBuffer* buffer);
+void cutText(TextBuffer* buffer);
+void insertWithReplacement(TextBuffer* buffer);
+void freeHistory(void);
+
+// Encryption
+void encryptCurrentText(TextBuffer* buffer);
+void decryptCurrentText(TextBuffer* buffer);
+void encryptTextFile(void);
+void decryptTextFile(void);
+void saveEncryptedText(TextBuffer* buffer);
+void loadEncryptedText(TextBuffer* buffer);
 
 #ifdef __cplusplus
 }
