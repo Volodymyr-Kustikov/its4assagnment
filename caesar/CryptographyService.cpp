@@ -165,13 +165,13 @@ extern "C" void decryptTextFile() {
 
 extern "C" void saveEncryptedText(TextBuffer* buffer) {
     TextBuffer bufferWrapper;
-    bufferWrapper.updateFromCInterface(reinterpret_cast<TextBuffer::CTextBuffer*>(buffer));
+    bufferWrapper.updateFromCInterface(reinterpret_cast<TextBuffer::TextBuffer*>(buffer));
     cryptoService.saveEncryptedText(bufferWrapper);
 }
 
 extern "C" void loadEncryptedText(TextBuffer* buffer) {
     TextBuffer bufferWrapper;
-    bufferWrapper.updateFromCInterface(reinterpret_cast<TextBuffer::CTextBuffer*>(buffer));
+    bufferWrapper.updateFromCInterface(reinterpret_cast<TextBuffer::TextBuffer*>(buffer));
     cryptoService.loadEncryptedText(bufferWrapper);
     *buffer = *reinterpret_cast<TextBuffer*>(bufferWrapper.getCInterface());
 }

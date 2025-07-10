@@ -2,7 +2,7 @@
 #define CRYPTOGRAPHYSERVICE_H
 
 #include "CipherManager.h"
-#include "TextBuffer.h"
+#include "main.h"
 #include "InputHandler.h"
 #include "FileManager.h"
 #include "../main.h"

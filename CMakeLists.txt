@@ -13,8 +13,6 @@ include_directories(${PROJECT_SOURCE_DIR}/cpp)
 # Caesar dynamic library
 add_library(caesar SHARED
         caesar/caesar_dll.c
-        caesar/TextBuffer.h
-        caesar/TextBuffer.cpp
         caesar/InputHandler.h
         caesar/InputHandler.cpp
         caesar/FileManager.cpp
