@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <string>
-#include "../main.h"
 
 // For Mac OS dynamic library loading
 #include <dlfcn.h>

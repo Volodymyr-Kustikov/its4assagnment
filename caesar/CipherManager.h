@@ -2,7 +2,6 @@
 #define CIPHERMANAGER_H
 
 #include "CaesarCipher.h"
-#include "main.h"
 #include <vector>
 #include <string>
 

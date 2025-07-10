@@ -1,12 +1,13 @@
 #include "CryptographyService.h"
 #include <iostream>
+#include <cstring>
 
 CryptographyService::CryptographyService() {
     // Initialize service
 }
 
-void CryptographyService::encryptCurrentText(TextBuffer& buffer) {
-    if (buffer.isEmpty()) {
+void CryptographyService::encryptCurrentText(TextBuffer* buffer) {
+    if (!buffer || !buffer->content || buffer->used == 0) {
         std::cout << "Buffer is empty. Nothing to encrypt." << std::endl;
         return;
     }
@@ -15,7 +16,8 @@ void CryptographyService::encryptCurrentText(TextBuffer& buffer) {
 
     saveBufferState(buffer);
 
-    std::vector<char> data = buffer.getContentAsVector();
+    // Convert buffer content to vector
+    std::vector<char> data(buffer->content, buffer->content + buffer->used);
     std::vector<char> encryptedData = cipherManager.encryptText(data, key);
 
     if (encryptedData.empty()) {
@@ -30,8 +32,8 @@ void CryptographyService::encryptCurrentText(TextBuffer& buffer) {
     }
 }
 
-void CryptographyService::decryptCurrentText(TextBuffer& buffer) {
-    if (buffer.isEmpty()) {
+void CryptographyService::decryptCurrentText(TextBuffer* buffer) {
+    if (!buffer || !buffer->content || buffer->used == 0) {
         std::cout << "Buffer is empty. Nothing to decrypt." << std::endl;
         return;
     }
@@ -40,7 +42,8 @@ void CryptographyService::decryptCurrentText(TextBuffer& buffer) {
 
     saveBufferState(buffer);
 
-    std::vector<char> data = buffer.getContentAsVector();
+    // Convert buffer content to vector
+    std::vector<char> data(buffer->content, buffer->content + buffer->used);
     std::vector<char> decryptedData = cipherManager.decryptText(data, key);
 
     if (decryptedData.empty()) {
@@ -79,8 +82,8 @@ void CryptographyService::decryptTextFile() {
     }
 }
 
-void CryptographyService::saveEncryptedText(TextBuffer& buffer) {
-    if (buffer.isEmpty()) {
+void CryptographyService::saveEncryptedText(TextBuffer* buffer) {
+    if (!buffer || !buffer->content || buffer->used == 0) {
         std::cout << "Buffer is empty. Nothing to save." << std::endl;
         return;
     }
@@ -88,7 +91,8 @@ void CryptographyService::saveEncryptedText(TextBuffer& buffer) {
     std::string filename = inputHandler.getStringInput("Enter filename to save encrypted text: ");
     int key = inputHandler.getIntegerInput("Enter encryption key (integer): ");
 
-    std::vector<char> data = buffer.getContentAsVector();
+    // Convert buffer content to vector
+    std::vector<char> data(buffer->content, buffer->content + buffer->used);
     std::vector<char> encryptedData = cipherManager.encryptText(data, key);
 
     if (encryptedData.empty()) {
@@ -100,7 +104,7 @@ void CryptographyService::saveEncryptedText(TextBuffer& buffer) {
     }
 }
 
-void CryptographyService::loadEncryptedText(TextBuffer& buffer) {
+void CryptographyService::loadEncryptedText(TextBuffer* buffer) {
     std::string filename = inputHandler.getStringInput("Enter filename to load encrypted text: ");
     int key = inputHandler.getIntegerInput("Enter decryption key (integer): ");
 
@@ -127,14 +131,36 @@ void CryptographyService::loadEncryptedText(TextBuffer& buffer) {
     }
 }
 
-void CryptographyService::saveBufferState(TextBuffer& buffer) {
-    // Convert to C-style buffer and call external saveState function
-    TextBuffer::CTextBuffer* cBuffer = buffer.getCInterface();
-    saveState(reinterpret_cast<TextBuffer*>(cBuffer));
+void CryptographyService::saveBufferState(TextBuffer* buffer) {
+    // Call the C function to save state
+    saveState(buffer);
 }
 
-bool CryptographyService::updateBuffer(TextBuffer& buffer, const std::vector<char>& data) {
-    return buffer.setContent(data);
+bool CryptographyService::updateBuffer(TextBuffer* buffer, const std::vector<char>& data) {
+    if (!buffer || data.empty()) {
+        return false;
+    }
+
+    // Free existing content
+    if (buffer->content) {
+        free(buffer->content);
+    }
+
+    // Allocate new memory
+    buffer->content = (char*)malloc(data.size() + 1);
+    if (!buffer->content) {
+        buffer->used = 0;
+        buffer->size = 0;
+        return false;
+    }
+
+    // Copy data
+    memcpy(buffer->content, data.data(), data.size());
+    buffer->content[data.size()] = '\0'; // Null terminate for safety
+    buffer->used = data.size();
+    buffer->size = data.size() + 1;
+
+    return true;
 }
 
 // Global service instance
@@ -142,17 +168,11 @@ static CryptographyService cryptoService;
 
 // C-style wrapper functions for compatibility
 extern "C" void encryptCurrentText(TextBuffer* buffer) {
-    TextBuffer bufferWrapper;
-    bufferWrapper.updateFromCInterface(reinterpret_cast<TextBuffer::CTextBuffer*>(buffer));
-    cryptoService.encryptCurrentText(bufferWrapper);
-    *buffer = *reinterpret_cast<TextBuffer*>(bufferWrapper.getCInterface());
+    cryptoService.encryptCurrentText(buffer);
 }
 
 extern "C" void decryptCurrentText(TextBuffer* buffer) {
-    TextBuffer bufferWrapper;
-    bufferWrapper.updateFromCInterface(reinterpret_cast<TextBuffer::CTextBuffer*>(buffer));
-    cryptoService.decryptCurrentText(bufferWrapper);
-    *buffer = *reinterpret_cast<TextBuffer*>(bufferWrapper.getCInterface());
+    cryptoService.decryptCurrentText(buffer);
 }
 
 extern "C" void encryptTextFile() {
@@ -164,14 +184,9 @@ extern "C" void decryptTextFile() {
 }
 
 extern "C" void saveEncryptedText(TextBuffer* buffer) {
-    TextBuffer bufferWrapper;
-    bufferWrapper.updateFromCInterface(reinterpret_cast<TextBuffer::TextBuffer*>(buffer));
-    cryptoService.saveEncryptedText(bufferWrapper);
+    cryptoService.saveEncryptedText(buffer);
 }
 
 extern "C" void loadEncryptedText(TextBuffer* buffer) {
-    TextBuffer bufferWrapper;
-    bufferWrapper.updateFromCInterface(reinterpret_cast<TextBuffer::TextBuffer*>(buffer));
-    cryptoService.loadEncryptedText(bufferWrapper);
-    *buffer = *reinterpret_cast<TextBuffer*>(bufferWrapper.getCInterface());
+    cryptoService.loadEncryptedText(buffer);
 }

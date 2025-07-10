@@ -3,6 +3,7 @@
 #include <sstream>
 #include <cstring>
 #include <algorithm>
+#include <cstdlib>
 
 DataTypeHandler::DataTypeHandler(Document* doc) : document(doc) {
     if (!document) {
