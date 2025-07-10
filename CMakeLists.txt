@@ -13,10 +13,16 @@ include_directories(${PROJECT_SOURCE_DIR}/cpp)
 # Caesar dynamic library
 add_library(caesar SHARED
         caesar/caesar_dll.c
-        caesar/encryption_interface.cpp
-        caesar/encryption_interface.h
-        caesar/encryption_manager.cpp
-        caesar/encryption_manager.h
+        caesar/TextBuffer.h
+        caesar/TextBuffer.cpp
+        caesar/InputHandler.h
+        caesar/InputHandler.cpp
+        caesar/FileManager.cpp
+        caesar/FileManager.h
+        caesar/CipherManager.cpp
+        caesar/CipherManager.h
+        caesar/CryptographyService.cpp
+        caesar/CryptographyService.h
 )
 
 # Main executable

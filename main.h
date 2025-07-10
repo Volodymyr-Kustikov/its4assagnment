@@ -97,6 +97,7 @@ void decryptTextFile(void);
 void saveEncryptedText(TextBuffer* buffer);
 void loadEncryptedText(TextBuffer* buffer);
 
+
 #ifdef __cplusplus
 }
 #endif
