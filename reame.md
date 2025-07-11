@@ -56,12 +56,19 @@ void paste(int line, int index);
 void save_state(); – For undo/redo functionality.
 
 
-1. What is object-oriented paradigm?
-2. What is a class?
-3. What is an object?
-4. What is the difference between fields and methods?
-5. Enumerate key object-oriented principles.
-6. Explain benefits of using object-oriented paradigm comparing to procedural and structural.
-7. Describe the program translation process from the source code to the final executable.
-8. What is compiler responsible for?
-9. What is a linker
+Encrypt current text
+![encCurrenttetx.png](assets/encCurrenttetx.png)
+![encrCurrenttetx.png](assets/encrCurrenttetx.png)
+Decrypt current text
+![decrCurrentTEtx.png](assets/decrCurrentTEtx.png)
+
+Encrypt text file
+![command8.png](assets/command8.png)
+![command18.1.png](assets/command18.1.png)
+Decrypt text file
+![command19.png](assets/command19.png)
+![command19.1.png](assets/command19.1.png)
+Save encrypted text
+![alisa1.png](assets/alisa1.png)
+![alisa11.png](assets/alisa11.png)
+Load encrypted text

@@ -7,8 +7,10 @@
 #define MAX_FILENAME_LENGTH 100
 #define MAX_INPUT_LENGTH 1024
 
+Document* g_document = NULL;
+
 void displayMenu(void);
-void processuserOption(int userOption, TextBuffer* buffer);
+void processUserOption(int userOption, TextBuffer* buffer);
 void initializeBuffer(TextBuffer* buffer);
 void resizeBufferIfNeeded(TextBuffer* buffer, size_t additionalSpace);
 void freeBuffer(TextBuffer* buffer);
@@ -23,7 +25,54 @@ void clearConsole(void);
 void clearInputBuffer(void);
 void deleteText(TextBuffer* buffer);
 
+Document* createDocument(void);
+void freeDocument(Document* doc);
+void initDataHandler(Document* doc);
+void addContactLine(void);
+void editContactLine(void);
+
+void encryptCurrentText(TextBuffer* buffer);
+void decryptCurrentText(TextBuffer* buffer);
+void encryptTextFile(void);
+void decryptTextFile(void);
+void saveEncryptedText(TextBuffer* buffer);
+void loadEncryptedText(TextBuffer* buffer);
+
+void initHistory(void);
+void saveState(TextBuffer* buffer);
+
+Document* createDocument(void) {
+    Document* doc = (Document*)malloc(sizeof(Document));
+    if (!doc) {
+        printf("Error: Failed to allocate memory for document\n");
+        return NULL;
+    }
+
+    doc->lines = (LineData*)malloc(10 * sizeof(LineData));
+    if (!doc->lines) {
+        free(doc);
+        printf("Error: Failed to allocate memory for lines\n");
+        return NULL;
+    }
+
+    doc->lineCount = 0;
+    doc->capacity = 10;
+    return doc;
+}
+
+void initDataHandler(Document* doc) {
+    g_document = doc;
+}
+
 int main() {
+    Document* document = createDocument();
+    if (!document) {
+        printf("Failed to create document. Exiting.\n");
+        return 1;
+    }
+
+    initDataHandler(document);
+
     int userOption = -1;
     TextBuffer buffer;
 
@@ -46,11 +95,26 @@ int main() {
             break;
         }
 
-        processuserOption(userOption, &buffer);
+        processUserOption(userOption, &buffer);
     }
 
     freeBuffer(&buffer);
+    freeDocument(document);
     return 0;
+}
+
+void freeDocument(Document* doc) {
+    if (doc) {
+        if (doc->lines) {
+            for (size_t i = 0; i < doc->lineCount; i++) {
+                if (doc->lines[i].type == DATA_TYPE_TEXT && doc->lines[i].data.text) {
+                    free(doc->lines[i].data.text);
+                }
+            }
+            free(doc->lines);
+        }
+        free(doc);
+    }
 }
 
 void displayMenu(void) {
@@ -80,7 +144,7 @@ void displayMenu(void) {
     printf("Enter your choice: ");
 }
 
-void processuserOption(int userOption, TextBuffer* buffer) {
+void processUserOption(int userOption, TextBuffer* buffer) {
     switch (userOption) {
         case 1:
             appendText(buffer);
@@ -144,6 +208,15 @@ void processuserOption(int userOption, TextBuffer* buffer) {
             break;
         case 21:
             loadEncryptedText(buffer);
+            break;
+
+        case 22:
+            addContactLine();
+            break;
+
+        case 23:
+            editContactLine();
+            break;
         default:
             printf("Error. U've sent smth strange. Try again\n");
     }
@@ -457,4 +530,73 @@ void clearConsole(void) {
 void clearInputBuffer(void) {
     int c;
     while ((c = getchar()) != '\n' && c != EOF) { }
+}
+
+void addContactLine(void) {
+    if (!g_document) return;
+
+    char name[100], surname[100], email[150];
+
+    printf("Enter name: ");
+    fgets(name, sizeof(name), stdin);
+    name[strcspn(name, "\n")] = 0;
+
+    printf("Enter surname: ");
+    fgets(surname, sizeof(surname), stdin);
+    surname[strcspn(surname, "\n")] = 0;
+
+    printf("Enter email: ");
+    fgets(email, sizeof(email), stdin);
+    email[strcspn(email, "\n")] = 0;
+
+    LineData newLine;
+    newLine.type = DATA_TYPE_CONTACT;
+    strcpy(newLine.data.contact.name, name);
+    strcpy(newLine.data.contact.surname, surname);
+    strcpy(newLine.data.contact.email, email);
+
+    g_document->lines[g_document->lineCount++] = newLine;
+
+    printf("Contact added.\n");
+}
+
+void editContactLine(void) {
+    if (!g_document || g_document->lineCount == 0) return;
+
+    printf("Contacts:\n");
+    for (size_t i = 0; i < g_document->lineCount; i++) {
+        if (g_document->lines[i].type == DATA_TYPE_CONTACT) {
+            printf("%zu: %s %s <%s>\n", i,
+                   g_document->lines[i].data.contact.name,
+                   g_document->lines[i].data.contact.surname,
+                   g_document->lines[i].data.contact.email);
+        }
+    }
+
+    size_t index;
+    printf("Enter index: ");
+    scanf("%zu", &index);
+    getchar();
+
+    if (index >= g_document->lineCount) return;
+
+    char name[100], surname[100], email[150];
+
+    printf("New name: ");
+    fgets(name, sizeof(name), stdin);
+    name[strcspn(name, "\n")] = 0;
+
+    printf("New surname: ");
+    fgets(surname, sizeof(surname), stdin);
+    surname[strcspn(surname, "\n")] = 0;
+
+    printf("New email: ");
+    fgets(email, sizeof(email), stdin);
+    email[strcspn(email, "\n")] = 0;
+
+    strcpy(g_document->lines[index].data.contact.name, name);
+    strcpy(g_document->lines[index].data.contact.surname, surname);
+    strcpy(g_document->lines[index].data.contact.email, email);
+
+    printf("Contact updated.\n");
 }
